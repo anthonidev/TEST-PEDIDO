@@ -1,8 +1,11 @@
+// src/pedido/tracking/trackingServices.service.ts
+
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PedidoCabecera } from '@/entities/pedidoCabecera.entity';
 import { Tracking } from '@/entities/tracking.entity';
+import { PedidoDetalle } from '@/entities/Pedidodetalle.entity';
 import { CustomResponse } from '@/helpers/CustomResponse';
 import { CustomException } from '@/helpers/CustomException';
 import { HttpStatus } from '@nestjs/common';
@@ -13,6 +16,8 @@ export class TrackingService {
         @InjectRepository(Tracking) private trackingRepo: Repository<Tracking>,
         @InjectRepository(PedidoCabecera)
         private pedidoRepo: Repository<PedidoCabecera>,
+        @InjectRepository(PedidoDetalle)
+        private pedidoDetalleRepo: Repository<PedidoDetalle>,
     ) {}
 
     async registrarTracking(
@@ -134,7 +139,11 @@ export class TrackingService {
         try {
             const pedido = await this.pedidoRepo.findOne({
                 where: { sNumeroPedido },
-                relations: ['trackings', 'trackings.trackingNetSuite'],
+                relations: [
+                    'trackings',
+                    'trackings.trackingNetSuite',
+                    'detallesPedido',
+                ],
             });
 
             if (!pedido) {
@@ -157,11 +166,51 @@ export class TrackingService {
                 });
             }
 
+            // Obtener información de confirmación/rechazo
+            const detalles = await this.pedidoDetalleRepo.find({
+                where: { sPedidoId: pedido.sIdPedidoCabecera },
+            });
+
+            // Obtener las fechas de confirmación/rechazo
+            const fechasAccion = detalles
+                .map((detalle) => ({
+                    sAccionDirectora: detalle.sAccionDirectora || null,
+                    dtFechaAccionDirectora:
+                        detalle.dtFechaAccionDirectora || null,
+                }))
+                .filter((detalle) => detalle.dtFechaAccionDirectora !== null);
+
+            // Encontrar la más reciente fecha de confirmación si existe
+            const fechaConfirmacion =
+                fechasAccion
+                    .filter(
+                        (detalle) => detalle.sAccionDirectora === 'CONFIRMADO',
+                    )
+                    .sort(
+                        (a, b) =>
+                            new Date(b.dtFechaAccionDirectora).getTime() -
+                            new Date(a.dtFechaAccionDirectora).getTime(),
+                    )[0]?.dtFechaAccionDirectora || null;
+
+            // Encontrar la más reciente fecha de rechazo si existe
+            const fechaRechazo =
+                fechasAccion
+                    .filter(
+                        (detalle) => detalle.sAccionDirectora === 'RECHAZADO',
+                    )
+                    .sort(
+                        (a, b) =>
+                            new Date(b.dtFechaAccionDirectora).getTime() -
+                            new Date(a.dtFechaAccionDirectora).getTime(),
+                    )[0]?.dtFechaAccionDirectora || null;
+
             const data = tracking.map((t) => ({
                 id: t.id,
                 sDirectora: t.sDirectora,
                 sStatus: t.sStatus,
                 dFechaCambio: t.dFechaCambio,
+                dFechaConfirmacion: fechaConfirmacion,
+                dFechaRechazo: fechaRechazo,
                 trackingNetSuite: t.trackingNetSuite
                     ? {
                           id: t.trackingNetSuite.id,

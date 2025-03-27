@@ -20,6 +20,8 @@ import { IDetalleArticulo } from './interfaces/detalleArticulo.interface';
 import { CustomClient } from '@/helpers/CustomClients';
 import { StockService } from './stocks/stock.service';
 import { StockPedidos } from '@/entities/stockPedidos.entity';
+import { PedidoEstrellaResponse } from './interfaces/pedidoEstrella.interface';
+import { DetalleTrackingResponse } from './interfaces/detalleTracking.interface';
 
 @Injectable()
 export class PedidoService {
@@ -998,7 +1000,7 @@ export class PedidoService {
         nAnio?: number,
         nMes?: number,
         sCodigoProducto?: string,
-    ): Promise<any> {
+    ): Promise<PedidoEstrellaResponse[]> {
         try {
             // Obtener año y mes actual si no se proporcionan
             const fechaActual = new Date();
@@ -1044,10 +1046,12 @@ export class PedidoService {
                 if (!pedidosMap.has(numeroPedido)) {
                     pedidosMap.set(numeroPedido, {
                         sNumeroPedido: numeroPedido,
+                        dFechaApertura: pedidoCabecera.dtFechaPedido, // Añadimos la fecha de apertura
                         nTotalCompra: 0,
                         nSumaPrecioSugerido: 0,
                         nTotalPaquetes: pedidoCabecera.nTotalPaquetes || 0,
                         nGanancia: 0,
+                        nTotalDespachados: 0, // Inicializamos el total despachado
                     });
                 }
 
@@ -1058,6 +1062,10 @@ export class PedidoService {
                 pedidoAgrupado.nSumaPrecioSugerido +=
                     Number(detalle.nPrecioSugerido) || 0;
 
+                // Sumamos la cantidad despachada (si existe)
+                pedidoAgrupado.nTotalDespachados +=
+                    Number(detalle.nCantidadDespachada) || 0;
+
                 // Calcular ganancia
                 pedidoAgrupado.nGanancia =
                     pedidoAgrupado.nTotalCompra -
@@ -1067,17 +1075,24 @@ export class PedidoService {
             // Convertir a dos decimales antes de retornar
             return Array.from(pedidosMap.values()).map((pedido) => ({
                 sNumeroPedido: pedido.sNumeroPedido,
+                dFechaApertura: pedido.dFechaApertura, // Fecha de apertura del pedido
                 nTotalCompra: Number(pedido.nTotalCompra.toFixed(2)),
                 nSumaPrecioSugerido: Number(
                     pedido.nSumaPrecioSugerido.toFixed(2),
                 ),
                 nTotalPaquetes: pedido.nTotalPaquetes,
+                nTotalDespachados: pedido.nTotalDespachados, // Total de productos despachados
                 nGanancia: Number(pedido.nGanancia.toFixed(2)),
             }));
         } catch (error) {
+            // Si es un error personalizado, manténlo tal como está
+            if (error instanceof CustomException) {
+                throw error;
+            }
+            // Si no, crea un nuevo error personalizado
             throw CustomException.execute({
-                status: HttpStatus.NOT_FOUND,
-                message: `Pedido no creado para el ID ${error}`,
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Error al obtener pedidos para la estrella ${sEstrellaId}: ${error.message}`,
             });
         }
     }
@@ -1176,7 +1191,7 @@ export class PedidoService {
     async obtenerDetallesPorPedidoEstrella(
         sNumeroPedido: string,
         sEstrellaId: number,
-    ): Promise<any> {
+    ): Promise<DetalleTrackingResponse[]> {
         try {
             // Obtener los detalles del pedido con la relación a la cabecera
             const detalles = await this.pedidoDetalleRepository.find({
@@ -1195,21 +1210,62 @@ export class PedidoService {
                 return [];
             }
 
-            // Mapear los detalles con la información relevante
-            return detallesFiltrados.map((detalle) => ({
-                nCantidad: detalle.nCantidad,
-                nPrecioEstrella: Number(detalle.nPrecioUnitario) || 0,
-                nPrecioSugerido: Number(detalle.nPrecioSugerido) || 0,
-                dtFechaPedidoDetalle:
-                    detalle.pedidoCabecera.dtFechaPedido || null,
-                dtFechaConfirmacion:
-                    detalle.pedidoCabecera.dtFechaCorte || null,
-            }));
+            // Mapear los detalles con la información relevante, incluyendo datos del producto
+            return detallesFiltrados.map((detalle) => {
+                // Parsear los datos del producto (que están almacenados como JSON string)
+                let datosProducto = {};
+                try {
+                    if (detalle.sDatosProducto) {
+                        datosProducto = JSON.parse(detalle.sDatosProducto);
+                    }
+                } catch (parseError) {
+                    console.error(
+                        'Error al parsear datos del producto:',
+                        parseError,
+                    );
+                    datosProducto = {
+                        error: 'Formato de datos no válido',
+                        rawData: detalle.sDatosProducto,
+                    };
+                }
+
+                return {
+                    nCantidad: detalle.nCantidad,
+                    nPrecioEstrella: Number(detalle.nPrecioUnitario) || 0,
+                    nPrecioSugerido: Number(detalle.nPrecioSugerido) || 0,
+                    dtFechaPedidoDetalle:
+                        detalle.pedidoCabecera.dtFechaPedido || null,
+                    dtFechaConfirmacion:
+                        detalle.pedidoCabecera.dtFechaCorte || null,
+                    // Información del producto
+                    producto: {
+                        sSkuProducto: detalle.sSkuProducto,
+                        sArticuloId: detalle.sArticuloId,
+                        sNivelPrecioId: detalle.sNivelPrecioId,
+                        sDepartamentoId: detalle.sDepartamentoId,
+                        sUbicacionId: detalle.sUbicacionId,
+                        sClaseId: detalle.sClaseId,
+                        sCodigoUm: detalle.sCodigoUm,
+                        // Incluimos información detallada del producto desde el JSON almacenado
+                        detalles: datosProducto,
+                    },
+                    // Estado del producto
+                    estado: {
+                        nCantidadComprometida:
+                            detalle.nCantidadComprometida || 0,
+                        nCantidadDespachada: detalle.nCantidadDespachada || 0,
+                        sAccionDirectora: detalle.sAccionDirectora || null,
+                        dtFechaAccionDirectora:
+                            detalle.dtFechaAccionDirectora || null,
+                        bEsBonificacion: detalle.bEsBonificacion || false,
+                    },
+                };
+            });
         } catch (error) {
             console.error('Error al obtener detalles del pedido:', error);
             throw CustomException.execute({
-                status: HttpStatus.NOT_FOUND,
-                message: `Pedido no creado para el ID ${error}`,
+                status: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: `Error al obtener detalles del pedido: ${error.message}`,
             });
         }
     }
