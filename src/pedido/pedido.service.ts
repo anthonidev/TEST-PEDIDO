@@ -22,7 +22,19 @@ import { StockService } from './stocks/stock.service';
 import { StockPedidos } from '@/entities/stockPedidos.entity';
 import { PedidoEstrellaResponse } from './interfaces/pedidoEstrella.interface';
 import { DetalleTrackingResponse } from './interfaces/detalleTracking.interface';
-
+interface DuplicateProductError {
+    sSkuHijo: string;
+    sPromotoraId: string;
+    message: string;
+    nombreProducto: string;
+    nombreEstrella: string;
+}
+interface PriceLevelError {
+    sSkuHijo: string;
+    sNivelPrecio: string;
+    message: string;
+    nombreProducto: string;
+}
 @Injectable()
 export class PedidoService {
     private customClient: CustomClient;
@@ -162,6 +174,7 @@ export class PedidoService {
 
     async crearPedido(pedidoData: any) {
         const queryRunner = this.dataSource.createQueryRunner();
+        await queryRunner.connect();
         await queryRunner.startTransaction();
 
         try {
@@ -173,6 +186,17 @@ export class PedidoService {
                 pedidoData.clienteId,
             );
             const sDirectoraId = directoraData.cliente.directora.nIdDirectora;
+
+            // VALIDACIÓN: Comprobar duplicados si no se permite explícitamente
+            if (!pedidoData.permitirDuplicados) {
+                await this.validarProductosDuplicados(
+                    pedidoData.detalles,
+                    sDirectoraId,
+                );
+            }
+
+            // VALIDACIÓN: Validar niveles de precio para todos los productos
+            await this.validarNivelesDePrecio(pedidoData.detalles);
 
             // Buscar pedido abierto existente
             let pedidoCabecera = await this.buscarPedidoAbierto(
@@ -215,7 +239,14 @@ export class PedidoService {
             });
         } catch (error) {
             await queryRunner.rollbackTransaction();
-            throw CustomException.execute({
+
+            // Si es un error personalizado (CustomException)
+            if (error instanceof CustomException) {
+                throw error; // Propagarlo tal cual
+            }
+
+            // Para otros errores
+            throw new CustomException({
                 status: HttpStatus.INTERNAL_SERVER_ERROR,
                 message: `Error al crear el pedido: ${error.message}`,
             });
@@ -224,6 +255,230 @@ export class PedidoService {
         }
     }
 
+    private async validarProductosDuplicados(
+        detalles: any[],
+        sDirectoraId: number,
+    ): Promise<void> {
+        const duplicados: DuplicateProductError[] = [];
+        const productosEnBolsa = new Map<string, any>();
+
+        // Mapa para guardar nombres de productos e información de estrellas
+        const productosInfo = new Map<string, string>();
+        const estrellasInfo = new Map<number | string, string>();
+
+        // Recopilar información sobre los productos y estrellas
+        for (const detalle of detalles) {
+            try {
+                // Obtener información del producto si no la tenemos ya
+                if (!productosInfo.has(detalle.sSkuHijo)) {
+                    const infoProducto = await this.listarProductoPorSku({
+                        sSkuItem: detalle.sSkuHijo,
+                        sPriceLevel: detalle.sNivelPrecio,
+                    });
+
+                    if (infoProducto?.data) {
+                        // Guardar nombre amigable del producto
+                        const nombre =
+                            infoProducto.data.sDescripcion ||
+                            `Producto ${detalle.sSkuHijo}`;
+                        productosInfo.set(detalle.sSkuHijo, nombre);
+                    } else {
+                        productosInfo.set(
+                            detalle.sSkuHijo,
+                            `Producto ${detalle.sSkuHijo}`,
+                        );
+                    }
+                }
+
+                // Obtener información de la estrella si no la tenemos ya
+                if (!estrellasInfo.has(detalle.sPromotoraId)) {
+                    const infoEstrella = await this.listarEstrellasPorId(
+                        detalle.sPromotoraId,
+                    );
+                    if (infoEstrella) {
+                        // Crear nombre amigable para la estrella
+                        const nombreEstrella =
+                            infoEstrella.sNombre && infoEstrella.sApellidos
+                                ? `${infoEstrella.sNombre} ${infoEstrella.sApellidos}`
+                                : `Estrella ${detalle.sPromotoraId}`;
+                        estrellasInfo.set(detalle.sPromotoraId, nombreEstrella);
+                    } else {
+                        estrellasInfo.set(
+                            detalle.sPromotoraId,
+                            `Estrella ${detalle.sPromotoraId}`,
+                        );
+                    }
+                }
+            } catch (error) {
+                // Si hay error al obtener datos, usar los identificadores como nombres
+                if (!productosInfo.has(detalle.sSkuHijo)) {
+                    productosInfo.set(
+                        detalle.sSkuHijo,
+                        `Producto ${detalle.sSkuHijo}`,
+                    );
+                }
+                if (!estrellasInfo.has(detalle.sPromotoraId)) {
+                    estrellasInfo.set(
+                        detalle.sPromotoraId,
+                        `Estrella ${detalle.sPromotoraId}`,
+                    );
+                }
+            }
+        }
+
+        // Verificar duplicados en el array de detalles de la solicitud actual
+        for (const detalle of detalles) {
+            const clave = `${detalle.sSkuHijo}_${detalle.sPromotoraId}`;
+
+            if (productosEnBolsa.has(clave)) {
+                const nombreProducto =
+                    productosInfo.get(detalle.sSkuHijo) ||
+                    `Producto ${detalle.sSkuHijo}`;
+                const nombreEstrella =
+                    estrellasInfo.get(detalle.sPromotoraId) ||
+                    `Estrella ${detalle.sPromotoraId}`;
+
+                duplicados.push({
+                    sSkuHijo: detalle.sSkuHijo,
+                    sPromotoraId: detalle.sPromotoraId,
+                    message: `Ya has agregado "${nombreProducto}" para ${nombreEstrella} en esta solicitud`,
+                    nombreProducto,
+                    nombreEstrella,
+                });
+            } else {
+                productosEnBolsa.set(clave, detalle);
+            }
+        }
+
+        // Verificar duplicados con productos existentes en pedidos abiertos
+        const pedidoAbierto = await this.pedidoCabeceraRepository.findOne({
+            where: {
+                sDirectoraId,
+                sEstadoCierre: 'ABIERTO',
+            },
+            relations: ['detallesPedido'],
+        });
+
+        if (pedidoAbierto) {
+            for (const detalle of detalles) {
+                const productoExistente = pedidoAbierto.detallesPedido.find(
+                    (item) =>
+                        item.sSkuProducto === detalle.sSkuHijo &&
+                        item.sEstrellaId.toString() ===
+                            detalle.sPromotoraId.toString(),
+                );
+
+                if (productoExistente) {
+                    const nombreProducto =
+                        productosInfo.get(detalle.sSkuHijo) ||
+                        `Producto ${detalle.sSkuHijo}`;
+                    const nombreEstrella =
+                        estrellasInfo.get(detalle.sPromotoraId) ||
+                        `Estrella ${detalle.sPromotoraId}`;
+
+                    duplicados.push({
+                        sSkuHijo: detalle.sSkuHijo,
+                        sPromotoraId: detalle.sPromotoraId,
+                        message: `"${nombreProducto}" ya existe en tu bolsa actual para ${nombreEstrella}`,
+                        nombreProducto,
+                        nombreEstrella,
+                    });
+                }
+            }
+        }
+
+        // Si encontramos duplicados, lanzamos una excepción con mensaje amigable
+        if (duplicados.length > 0) {
+            throw new CustomException({
+                status: HttpStatus.CONFLICT,
+                message:
+                    duplicados.length === 1
+                        ? 'No puedes agregar el mismo producto más de una vez para la misma estrella'
+                        : 'No puedes agregar productos duplicados para las mismas estrellas',
+                duplicados: duplicados,
+                detalle:
+                    duplicados.length === 1
+                        ? duplicados[0].message
+                        : `Se encontraron ${duplicados.length} productos duplicados en tu solicitud`,
+                sugerencia:
+                    "Puedes aumentar la cantidad del producto en lugar de agregarlo dos veces, o marcar 'Permitir duplicados' si realmente necesitas el mismo producto más de una vez.",
+            });
+        }
+    }
+
+    /**
+     * Valida que todos los productos tengan niveles de precio válidos
+     * @param detalles Detalles del pedido a crear
+     * @throws CustomException si se encuentran productos con niveles de precio inválidos
+     */
+    private async validarNivelesDePrecio(detalles: any[]): Promise<void> {
+        const errores: PriceLevelError[] = [];
+        const productosInfo = new Map<string, string>();
+
+        for (const detalle of detalles) {
+            try {
+                const articulo = await this.listarProductoPorSku({
+                    sSkuItem: detalle.sSkuHijo,
+                    sPriceLevel: detalle.sNivelPrecio,
+                });
+
+                // Guardar nombre amigable del producto
+                if (articulo?.data) {
+                    const nombre =
+                        articulo.data.sDescripcion ||
+                        `Producto ${detalle.sSkuHijo}`;
+                    productosInfo.set(detalle.sSkuHijo, nombre);
+                } else {
+                    productosInfo.set(
+                        detalle.sSkuHijo,
+                        `Producto ${detalle.sSkuHijo}`,
+                    );
+
+                    // No se encontró el nivel de precio
+                    const nombreProducto = productosInfo.get(detalle.sSkuHijo);
+                    errores.push({
+                        sSkuHijo: detalle.sSkuHijo,
+                        sNivelPrecio: detalle.sNivelPrecio,
+                        message: `No se encontró un precio válido para "${nombreProducto}"`,
+                        nombreProducto,
+                    });
+                }
+            } catch (error) {
+                // Si no tenemos el nombre del producto, usar el SKU
+                if (!productosInfo.has(detalle.sSkuHijo)) {
+                    productosInfo.set(
+                        detalle.sSkuHijo,
+                        `Producto ${detalle.sSkuHijo}`,
+                    );
+                }
+
+                const nombreProducto = productosInfo.get(detalle.sSkuHijo);
+                errores.push({
+                    sSkuHijo: detalle.sSkuHijo,
+                    sNivelPrecio: detalle.sNivelPrecio,
+                    message: `Error al verificar el precio de "${nombreProducto}"`,
+                    nombreProducto,
+                });
+            }
+        }
+
+        // Si encontramos errores de nivel de precio, lanzamos una excepción
+        if (errores.length > 0) {
+            throw new CustomException({
+                status: HttpStatus.BAD_REQUEST,
+                message:
+                    errores.length === 1
+                        ? `No podemos procesar tu pedido porque un producto no tiene precio válido`
+                        : `No podemos procesar tu pedido porque ${errores.length} productos no tienen precios válidos`,
+                errores: errores,
+                detalle:
+                    errores.length === 1
+                        ? errores[0].message
+                        : `Por favor revisa los precios de los productos marcados`,
+                sugerencia: 'Contacta con soporte si este problema persiste.',
+            });
+        }
+    }
     private validarDatosPedido(pedidoData: any) {
         if (!pedidoData?.clienteId || !pedidoData?.detalles?.length) {
             throw CustomException.execute({
