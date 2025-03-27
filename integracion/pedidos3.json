@@ -1,0 +1,239 @@
+{
+  "links": [
+    {
+      "rel": "self",
+      "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/salesOrder/15790"
+    }
+  ],
+  "billAddress": "WARMISHOP MD S.A.C.\nJr bellido 184\nA 2 cuadras de la plaza de armas\nAyacucho\nHuamanga Ayacucho \nPeru",
+  "billAddressList": {
+    "links": [],
+    "id": "302",
+    "refName": "Jr bellido 184"
+  },
+  "billingAddress": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder/15790/billingAddress"
+      }
+    ]
+  },
+  "billingAddress_text": "WARMISHOP MD S.A.C.\nJr bellido 184\nA 2 cuadras de la plaza de armas\nAyacucho\nHuamanga Ayacucho \nPeru",
+  "canBeUnapproved": true,
+  "canHaveStackable": false,
+  "createdDate": "2025-03-26T21:31:00Z",
+  "currency": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/currency/1"
+      }
+    ],
+    "id": "1",
+    "refName": "Soles"
+  },
+  "custbody_15699_exclude_from_ep_process": false,
+  "custbody_4601_entitytype": "2",
+  "custbody_edoc_gen_trans_pdf": false,
+  "custbody_ei_ds_txn_identifier": false,
+  "custbody_nondeductible_ref_tran": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder/15790/custbody_nondeductible_ref_tran"
+      }
+    ]
+  },
+  "custbody_ns_afec_ret": false,
+  "custbody_ns_afecto_percepcion": false,
+  "custbody_ns_consignacion": false,
+  "custbody_ns_med_pago_pe": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord_ns_payment_methods/22"
+      }
+    ],
+    "id": "22",
+    "refName": "Otros medios de pago"
+  },
+  "custbody_ns_ope_balance": false,
+  "custbody_ns_pe_auto_detrac": false,
+  "custbody_ns_pe_free_operation": false,
+  "custbody_ns_plty_compen_gen": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder/15790/custbody_ns_plty_compen_gen"
+      }
+    ]
+  },
+  "custbody_ns_trans_rel_percep": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder/15790/custbody_ns_trans_rel_percep"
+      }
+    ]
+  },
+  "custbody_ns_void": false,
+  "custbody_packship_process_on_if": false,
+  "custbody_psg_ei_edoc_recipient": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder/15790/custbody_psg_ei_edoc_recipient"
+      }
+    ]
+  },
+  "custbody_ptly_letra_pp_trans_rel": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder/15790/custbody_ptly_letra_pp_trans_rel"
+      }
+    ]
+  },
+  "custbody_report_timestamp": "26/03/2025 14:31:44",
+  "custbody_shipcentral_sat_del": false,
+  "custbody_sii_article_61d": false,
+  "custbody_sii_article_72_73": false,
+  "custbody_sii_is_third_party": false,
+  "custbody_sii_not_reported_in_time": false,
+  "custbody_wmsse_codflag": false,
+  "custbody_wmsse_printpickticket": false,
+  "custbody_wmsse_saturdaydelivery": false,
+  "custbody_wmsse_signiturerequired": false,
+  "custbodytipodepedido": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/customlist720/1"
+      }
+    ],
+    "id": "1",
+    "refName": "R. REGULAR "
+  },
+  "customForm": {
+    "id": "157",
+    "refName": "PE- Orden de Venta"
+  },
+  "department": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/department/2"
+      }
+    ],
+    "id": "2",
+    "refName": "Venta Directa : Directora"
+  },
+  "discountTotal": 0,
+  "email": "grisell.ayacucho.sokso@gmail.com",
+  "entity": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/vendor/316"
+      }
+    ],
+    "id": "316",
+    "refName": "D000000001"
+  },
+  "exchangeRate": 1,
+  "id": "15790",
+  "item": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder/15790/item"
+      }
+    ]
+  },
+  "lastModifiedDate": "2025-03-26T21:31:00Z",
+  "location": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/location/112"
+      }
+    ],
+    "id": "112",
+    "refName": "Centro Logistico  Carapongo : Almacen de Disponible"
+  },
+  "needsPick": true,
+  "orderStatus": {
+    "id": "B",
+    "refName": "B"
+  },
+  "originator": "restWebServices",
+  "prevDate": "2025-03-26",
+  "prevRep": 22,
+  "salesEffectiveDate": "2025-03-26",
+  "salesRep": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/employee/22"
+      }
+    ],
+    "id": "22",
+    "refName": "Ivonne Soraya Franco"
+  },
+  "shipAddress": "WARMISHOP MD S.A.C.\nJr bellido 184\nA 2 cuadras de la plaza de armas\nAyacucho\nHuamanga Ayacucho \nPeru",
+  "shipAddressList": {
+    "links": [],
+    "id": "302",
+    "refName": "Jr bellido 184"
+  },
+  "shipComplete": false,
+  "shipDate": "2025-03-26",
+  "shipIsResidential": false,
+  "shipOverride": false,
+  "shippingAddress": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/salesorder/15790/shippingAddress"
+      }
+    ]
+  },
+  "shippingAddress_text": "WARMISHOP MD S.A.C.\nJr bellido 184\nA 2 cuadras de la plaza de armas\nAyacucho\nHuamanga Ayacucho \nPeru",
+  "source": {
+    "id": "Servicios web REST",
+    "refName": "Servicios web REST"
+  },
+  "status": {
+    "id": "B",
+    "refName": "Ejecución de la orden pendiente"
+  },
+  "subsidiary": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/subsidiary/2"
+      }
+    ],
+    "id": "2",
+    "refName": "SOKSO"
+  },
+  "subtotal": 167,
+  "terms": {
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/term/24"
+      }
+    ],
+    "id": "24",
+    "refName": "Crédito a 120 días"
+  },
+  "toBeEmailed": false,
+  "toBeFaxed": false,
+  "toBePrinted": false,
+  "total": 197.06,
+  "tranDate": "2025-03-26",
+  "tranId": "508",
+  "webStore": "F"
+}

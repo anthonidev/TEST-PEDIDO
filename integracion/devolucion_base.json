@@ -1,0 +1,230 @@
+{
+    "links": [
+      {
+        "rel": "self",
+        "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/returnAuthorization/762"
+      }
+    ],
+    "billAddress": "GONZALES GARCIA LUZ\nAV. PROCERES MZ B LT 5\nICA\nICA ICA \nPerú",
+    "billAddressList": {
+      "links": [],
+      "id": "711",
+      "refName": "AV. PROCERES MZ B LT 5"
+    },
+    "billingAddress": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/returnauthorization/762/billingAddress"
+        }
+      ]
+    },
+    "billingAddress_text": "GONZALES GARCIA LUZ\nAV. PROCERES MZ B LT 5\nICA\nICA ICA \nPerú",
+    "canHaveStackable": false,
+    "createdDate": "2025-01-27T21:46:00Z",
+    "createdFrom": {
+      "links": [],
+      "id": "761",
+      "refName": "Factura de venta #FA F001-00000001"
+    },
+    "currency": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/currency/2"
+        }
+      ],
+      "id": "2",
+      "refName": "US Dollar"
+    },
+    "custbody_15699_exclude_from_ep_process": false,
+    "custbody_4601_entitytype": "2",
+    "custbody_edoc_gen_trans_pdf": false,
+    "custbody_ei_ds_txn_identifier": false,
+    "custbody_nondeductible_ref_tran": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/returnauthorization/762/custbody_nondeductible_ref_tran"
+        }
+      ]
+    },
+    "custbody_ns_afec_ret": false,
+    "custbody_ns_amount_words": "VEINTIOCHO CON 34/100 DÓLARES AMERICANOS",
+    "custbody_ns_concept_detracc": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord_ns_detrac_concep/1"
+        }
+      ],
+      "id": "1",
+      "refName": "000 Sin Detraccion"
+    },
+    "custbody_ns_consignacion": false,
+    "custbody_ns_document_type": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord_ns_tipo_documento/2"
+        }
+      ],
+      "id": "2",
+      "refName": "Factura"
+    },
+    "custbody_ns_ei_forma_pago": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/customlist_ns_fel_forma_pago/1"
+        }
+      ],
+      "id": "1",
+      "refName": "Contado"
+    },
+    "custbody_ns_med_pago_pe": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord_ns_payment_methods/22"
+        }
+      ],
+      "id": "22",
+      "refName": "Otros medios de pago"
+    },
+    "custbody_ns_num_correlativo": "00000001",
+    "custbody_ns_ope_balance": false,
+    "custbody_ns_pe_auto_detrac": false,
+    "custbody_ns_pe_free_operation": false,
+    "custbody_ns_perce_detrac": 0,
+    "custbody_ns_series_cxc": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/customrecord_ns_serie_cxc/1"
+        }
+      ],
+      "id": "1",
+      "refName": "F001"
+    },
+    "custbody_ns_void": false,
+    "custbody_packship_process_on_if": false,
+    "custbody_psg_ei_edoc_recipient": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/returnauthorization/762/custbody_psg_ei_edoc_recipient"
+        }
+      ]
+    },
+    "custbody_ptly_letra_pp_trans_rel": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/returnauthorization/762/custbody_ptly_letra_pp_trans_rel"
+        }
+      ]
+    },
+    "custbody_report_timestamp": "27/1/2025 6:37:41",
+    "custbody_shipcentral_sat_del": false,
+    "custbody_sii_article_61d": false,
+    "custbody_sii_article_72_73": false,
+    "custbody_sii_is_third_party": false,
+    "custbody_sii_not_reported_in_time": false,
+    "custbody_wmsse_codflag": false,
+    "custbody_wmsse_printpickticket": false,
+    "custbody_wmsse_saturdaydelivery": false,
+    "custbody_wmsse_signiturerequired": false,
+    "customForm": {
+      "id": "106",
+      "refName": "PE Autorizacion de Devolucion"
+    },
+    "discountTotal": 0,
+    "email": "viale.catalogochinchacecilia@gmail.com",
+    "entity": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/customer/1431"
+        }
+      ],
+      "id": "1431",
+      "refName": "D000001210"
+    },
+    "exchangeRate": 3.706,
+    "id": "762",
+    "item": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/returnauthorization/762/item"
+        }
+      ]
+    },
+    "lastModifiedDate": "2025-01-27T21:48:00Z",
+    "location": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/location/116"
+        }
+      ],
+      "id": "116",
+      "refName": "Centro Logistico  Carapongo : Almacen de Devoluciones de Cliente"
+    },
+    "orderStatus": {
+      "id": "B",
+      "refName": "Recepción pendiente"
+    },
+    "prevDate": "2025-01-27",
+    "prevRep": 153,
+    "salesEffectiveDate": "2025-01-27",
+    "salesRep": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/contact/153"
+        }
+      ],
+      "id": "153",
+      "refName": "Ana Maria Elena Wiener"
+    },
+    "shipAddress": "GONZALES GARCIA LUZ\nJR. LOS ANDES 456 DTO 20\nICA\nCHINCHA ALTA CHINCHA \nPerú",
+    "shipAddressList": {
+      "links": [],
+      "id": "710",
+      "refName": "JR. LOS ANDES 456 DTO 20"
+    },
+    "shipIsResidential": false,
+    "shipOverride": false,
+    "shippingAddress": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/returnauthorization/762/shippingAddress"
+        }
+      ]
+    },
+    "shippingAddress_text": "GONZALES GARCIA LUZ\nJR. LOS ANDES 456 DTO 20\nICA\nCHINCHA ALTA CHINCHA \nPerú",
+    "status": {
+      "id": "Recepción pendiente",
+      "refName": "Recepción pendiente"
+    },
+    "subsidiary": {
+      "links": [
+        {
+          "rel": "self",
+          "href": "https://8758020-sb1.suitetalk.api.netsuite.com/services/rest/record/v1/subsidiary/2"
+        }
+      ],
+      "id": "2",
+      "refName": "SOKSO"
+    },
+    "subtotal": 24.02,
+    "toBeEmailed": false,
+    "toBeFaxed": false,
+    "toBePrinted": false,
+    "total": 28.34,
+    "tranDate": "2025-01-27",
+    "tranId": "1"
+  }
